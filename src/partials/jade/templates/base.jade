@@ -1,0 +1,43 @@
+include ./../header.jade
+
+#contentWrapper
+    .row
+        .col-sm-7
+            .CodeWrapper
+                .LineCount
+                    - var n = 1
+                    ul
+                        while n < 60
+                            li= n++
+                .CodeSnippet
+                    include ./codeSnippet.html
+        .col-sm-5
+            .GraphWrapper
+                .internalGraphWrap
+                    #Graph
+                #OverLay
+                    ul
+                        li
+                            p 80%
+                        li
+                            p 60%
+                        li
+                            p 40%
+                        li
+                            p 20%
+                        li
+                            p 0%
+                        li
+                            p -20%
+
+            .ConsoleLog
+                h3 Log
+                ul.ErrorLog
+                    li Dolor sit amet, consectetur adipiscing elit
+                    li.Warning Aliquip ex ea commodo consequat. Duis aute
+                    li.Error Non proident, sunt in culpa qui officia deserunt mollit
+                    li Consectetur adipiscing elit, sed do eiusmod ut labore
+                    li Ullamco laboris nisi ut aliquip ex ea commodo
+                    li Excepteur sint occaecat cupidatat non proident
+
+include ./../footer.jade

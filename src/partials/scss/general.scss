@@ -1,0 +1,183 @@
+@import "normalise.scss";
+@import "fonts.scss";
+
+body {
+  background: #272727 !important;
+  overflow-y: hidden;
+}
+
+#contentWrapper {
+  position: relative;
+}
+
+h1.logo {
+  font-family: Merriweather;
+  font-size: 35px;
+  line-height: 50px;
+  color: #eee;
+}
+
+.Nav {
+  background: #222;
+  height:50px;
+  ul {
+    float: right;
+    list-style:none;
+    li {
+      float: left;
+      padding:0 10px;
+      height: 50px;
+      a {
+        line-height: 50px;
+        display: block;
+        font-size: 13px;
+        color:#eaeaea;
+        text-decoration: none !important;
+      }
+      &.active {
+        background:#161616;
+        a {
+          color: #f0f0f0;
+        }
+      }
+      &:hover {
+        background: #1a1a1a;
+      }
+    }
+  }
+}
+
+.SubNavMenu {
+  background:#eee;
+  padding: 10px 0;
+  input {
+    width: 80%;
+    padding: 1px 10px;
+    color:#333;
+  }
+}
+
+.CodeWrapper {
+  height: calc(100% - 102px);
+  overflow-x: auto;
+  overflow-y: scroll;
+  .LineCount {
+    width: 4%;
+    background: #272727;
+    padding-top: 10px;
+    float: left;
+    padding-bottom: 10px;
+    ul li {
+      text-align: center;
+      line-height: 20px;
+    }
+  }
+  .CodeSnippet {
+    width: 96%;
+    float: left;
+    pre {
+      padding-bottom: 10px;
+      background: #232323 !important;
+    }
+  }
+}
+
+.btn {
+  background: #fff;
+  border:1px solid #ddd;
+  margin-right: 10px;
+  color: #222;
+  font-weight: 600;
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
+.btn.Primary {
+  background: #fd8123;
+  border:1px solid #FD6228;
+  color: #fff;
+  &:hover {
+    background: #fd6d2b;
+  }
+}
+
+.floatButtonRight {
+  .btn {
+    float: right;
+  }
+}
+
+#Graph {
+  height:50%;
+}
+
+.GraphWrapper {
+  position: relative;
+  .internalGraphWrap {
+    margin-left: 10px;
+    #Graph {
+      background: #fff;
+    }
+  }
+  #Overlay {
+    position: absolute;
+    top: 0;
+    left: -25px;
+    height: 100%;
+    width: calc(100% + 25px);
+    ul {
+      list-style: none;
+      li {
+        position: relative;
+        height: 16.5%;
+        font-size: 12px;
+        p {
+          float: left;
+          width: 35px;
+          text-align: center;
+        }
+        &:after {
+          content: ' ';
+          position: absolute;
+          width: calc(100% - 40px);
+          right: 0;
+          height: 1px;
+          top: 14px;
+          background: rgba(186, 186, 186, 0.37);
+        }
+      }
+    }
+  }
+}
+
+.ConsoleLog {
+  margin-left: 10px;
+  background: #fff;
+  height: 50%;
+  padding: 20px;
+}
+
+.ConsoleLog {
+  border-top:1px solid #eee;
+  background:#fafafa;
+  font-size: 14px;
+  color: #555;
+  ul {
+    padding-left: 30px;
+    list-style-type: square;
+  }
+  h3 {
+    font-weight: 600;
+    color:#444;
+    font-size: 19px;
+  }
+  .Warning {
+    color: #ffbc5d;
+    font-weight: 600;
+  }
+  .Error {
+    color: #ff472a;
+    font-weight: bold;
+  }
+}

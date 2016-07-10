@@ -1,0 +1,60 @@
+<pre style="background:#181818;padding-top:10px;line-height: 20px;font-size: 14px;color:#f8f8f8;border-radius: 0px; padding-left: 6px;"><span style="color:#f9ee98">def</span> <span style="color:#9b703f">myTradingSystem</span>(<span style="color:#7587a6">DATE</span>, <span style="color:#7587a6">OPEN</span>, <span style="color:#7587a6">HIGH</span>, <span style="color:#7587a6">LOW</span>, <span style="color:#7587a6">CLOSE</span>, <span style="color:#7587a6">settings</span>):
+<span style="color:#5f5a60;font-style:italic">#    Check if initial run    </span>
+    <span style="color:#cda869">if</span> <span style="color:#cda869">~</span><span style="color:#dad085">hasattr</span>(settings, <span style="color:#8f9d6a">'HA_Close'</span>):
+        nMarkets <span style="color:#cda869">=</span> CLOSE.shape[<span style="color:#cf6a4c">1</span>]
+        nRows <span style="color:#cda869">=</span> CLOSE.shape[<span style="color:#cf6a4c">0</span>]
+<span style="color:#5f5a60;font-style:italic">#        Initial p vector, only need to define on first run</span>
+        settings[<span style="color:#8f9d6a">'lastP'</span>] <span style="color:#cda869">=</span> numpy.zeros(nMarkets)
+<span style="color:#5f5a60;font-style:italic">#        Initial Heikin Values</span>
+        settings[<span style="color:#8f9d6a">'HA_Close'</span>] <span style="color:#cda869">=</span> (OPEN[<span style="color:#cf6a4c">0</span>,]<span style="color:#cda869">+</span>HIGH[<span style="color:#cf6a4c">0</span>,]<span style="color:#cda869">+</span>LOW[<span style="color:#cf6a4c">0</span>,]<span style="color:#cda869">+</span>CLOSE[<span style="color:#cf6a4c">0</span>,])<span style="color:#cda869">/</span><span style="color:#cf6a4c">4</span>
+        settings[<span style="color:#8f9d6a">'HA_Open'</span>] <span style="color:#cda869">=</span> (OPEN[<span style="color:#cf6a4c">0</span>,]<span style="color:#cda869">+</span>CLOSE[<span style="color:#cf6a4c">0</span>,])<span style="color:#cda869">/</span><span style="color:#cf6a4c">2</span>
+<span style="color:#5f5a60;font-style:italic">#        Run across lookback period, starting with 2nd row</span>
+        <span style="color:#cda869">for</span> i <span style="color:#cda869">in</span> <span style="color:#dad085">range</span>(<span style="color:#cf6a4c">1</span>,nRows):
+            HAmatrix <span style="color:#cda869">=</span> HEIKIN(OPEN[i,:],HIGH[i,:],LOW[i,:],CLOSE[i,:],settings[<span style="color:#8f9d6a">'HA_Open'</span>],settings[<span style="color:#8f9d6a">'HA_Close'</span>])
+<span style="color:#5f5a60;font-style:italic">#            To keep from running on the latest value to use in trade logic</span>
+            <span style="color:#cda869">if</span> i <span style="color:#cda869">&lt;</span> nRows<span style="color:#cda869">-</span><span style="color:#cf6a4c">1</span>:
+                settings[<span style="color:#8f9d6a">'HA_Close'</span>] <span style="color:#cda869">=</span> HAmatrix[<span style="color:#cf6a4c">0</span>,:]
+                settings[<span style="color:#8f9d6a">'HA_Open'</span>] <span style="color:#cda869">=</span> HAmatrix[<span style="color:#cf6a4c">1</span>,:]
+
+<span style="color:#f9ee98">def</span> <span style="color:#9b703f">trades</span>(<span style="color:#7587a6">HA</span>, <span style="color:#7587a6">oldO</span>, <span style="color:#7587a6">oldC</span>):
+<span style="color:#5f5a60;font-style:italic">#    Heikin Ashi Reversal Strategy</span>
+<span style="color:#5f5a60;font-style:italic">#    ------------- Entry ----------------</span>
+<span style="color:#5f5a60;font-style:italic">#    Buying</span>
+<span style="color:#5f5a60;font-style:italic">#    latest HA candle is bearish, HA_Close &lt; HA_Open</span>
+    long1 <span style="color:#cda869">=</span> HA[<span style="color:#cf6a4c">0</span>,:] <span style="color:#cda869">&lt;</span> HA[<span style="color:#cf6a4c">1</span>,:]
+<span style="color:#5f5a60;font-style:italic">#    current candle body is longer than previous candle body</span>
+    long2 <span style="color:#cda869">=</span> numpy.abs(HA[<span style="color:#cf6a4c">0</span>,:] <span style="color:#cda869">-</span> HA[<span style="color:#cf6a4c">1</span>,:]) <span style="color:#cda869">></span> numpy.abs(oldC <span style="color:#cda869">-</span> oldO)
+<span style="color:#5f5a60;font-style:italic">#    previous candle was bearish</span>
+    long3 <span style="color:#cda869">=</span> oldC <span style="color:#cda869">&lt;</span> oldO
+<span style="color:#5f5a60;font-style:italic">#    latest candle has no upper wick HA_Open == HA_High</span>
+    long4 <span style="color:#cda869">=</span> HA[<span style="color:#cf6a4c">1</span>,:] <span style="color:#cda869">==</span> HA[<span style="color:#cf6a4c">2</span>,:]
+    <span style="color:#9b859d">long</span> <span style="color:#cda869">=</span> long1 <span style="color:#cda869">&amp;</span> long2 <span style="color:#cda869">&amp;</span> long3 <span style="color:#cda869">&amp;</span> long4
+<span style="color:#5f5a60;font-style:italic">#    Selling</span>
+<span style="color:#5f5a60;font-style:italic">#    latest candle bullish, previous candle bullish with smaller body</span>
+<span style="color:#5f5a60;font-style:italic">#    latest candle has no lower wick HA_Open == HA_Low</span>
+    short4 <span style="color:#cda869">=</span> HA[<span style="color:#cf6a4c">1</span>,:] <span style="color:#cda869">==</span> HA[<span style="color:#cf6a4c">3</span>,:]
+    short <span style="color:#cda869">=</span> <span style="color:#cda869">~</span>long1 <span style="color:#cda869">&amp;</span> long2 <span style="color:#cda869">&amp;</span> <span style="color:#cda869">~</span>long3 <span style="color:#cda869">&amp;</span> short4
+<span style="color:#5f5a60;font-style:italic">#    ------------- Exit -----------------</span>
+<span style="color:#5f5a60;font-style:italic">#    Exiting Long Positions - same conditions as short except for candle body</span>
+    long_exit <span style="color:#cda869">=</span> <span style="color:#cda869">~</span>long1 <span style="color:#cda869">&amp;</span> <span style="color:#cda869">~</span>long3 <span style="color:#cda869">&amp;</span> short4
+<span style="color:#5f5a60;font-style:italic">#    Exiting Short Positions - same conditions as long except for candle body</span>
+    short_exit <span style="color:#cda869">=</span> long1 <span style="color:#cda869">&amp;</span> long3 <span style="color:#cda869">&amp;</span> long4
+    out <span style="color:#cda869">=</span> numpy.array([<span style="color:#9b859d">long</span>, short, long_exit, short_exit])
+    <span style="color:#cda869">return</span> out
+
+<span style="color:#f9ee98">def</span> <span style="color:#9b703f">executeP</span>(<span style="color:#7587a6">L</span>, <span style="color:#7587a6">S</span>, <span style="color:#7587a6">L_e</span>, <span style="color:#7587a6">S_e</span>, <span style="color:#7587a6">oldP</span>):
+<span style="color:#5f5a60;font-style:italic">#    Split buy and sell from p</span>
+    Pbought <span style="color:#cda869">=</span> oldP <span style="color:#cda869">></span> <span style="color:#cf6a4c">0</span>
+    Psold <span style="color:#cda869">=</span> oldP <span style="color:#cda869">&lt;</span> <span style="color:#cf6a4c">0</span>
+<span style="color:#5f5a60;font-style:italic">#    Close Long Positions</span>
+    closeBuy <span style="color:#cda869">=</span> Pbought <span style="color:#cda869">&amp;</span> L_e
+    oldP[closeBuy] <span style="color:#cda869">=</span> <span style="color:#cf6a4c">0</span>
+<span style="color:#5f5a60;font-style:italic">#    Close Sort Positions</span>
+    closeSell <span style="color:#cda869">=</span> Psold <span style="color:#cda869">&amp;</span> S_e
+    oldP[closeSell] <span style="color:#cda869">=</span> <span style="color:#cf6a4c">0</span>
+<span style="color:#5f5a60;font-style:italic">#    Enter New Long Positions</span>
+    oldP[L] <span style="color:#cda869">=</span> <span style="color:#cf6a4c">1</span>
+<span style="color:#5f5a60;font-style:italic">#    Enter New Short Positions</span>
+    oldP[S] <span style="color:#cda869">=</span> <span style="color:#cda869">-</span><span style="color:#cf6a4c">1</span>
+    <span style="color:#cda869">return</span> oldP
+</pre>
